@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Sistema de Votación</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Panel de Control</h1>
+            <p class="subtitle">Gestión y Apertura de Votaciones comunitarias</p>
+        </header>
+
+        <section id="admin-login-view" class="login-panel">
+            <div id="admin-box-login" class="login-box">
+                <h2>Acceso de Administrador</h2>
+                <p>Introduce tus credenciales de seguridad para ingresar:</p>
+                <div class="input-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="admin-login-email" placeholder="ejemplo@correo.com" autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="admin-login-pass" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button id="btn-execute-login" class="btn-primary" style="margin-top: 15px;">Iniciar Sesión</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 13px;">
+                    ¿No tienes cuenta? <a href="#" id="link-ir-a-registro" style="color: #2563eb; font-weight: bold;">Regístrate aquí</a>
+                </p>
+                <div id="admin-error-msg" class="error-text hidden"></div>
+            </div>
+
+            <div id="admin-box-register" class="login-box hidden">
+                <h2>Registro de Administrador</h2>
+                <div class="input-group">
+                    <label>Nombre Completo:</label>
+                    <input type="text" id="admin-reg-name" placeholder="Tu Nombre">
+                </div>
+                <div class="input-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="admin-reg-email" placeholder="ejemplo@correo.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña (Mínimo 6 caracteres):</label>
+                    <input type="password" id="admin-reg-pass" placeholder="••••••••">
+                </div>
+                <button id="btn-execute-register" class="btn-success" style="margin-top: 15px;">Crear Cuenta Admin</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 13px;">
+                    ¿Ya tienes cuenta? <a href="#" id="link-ir-a-login" style="color: #2563eb; font-weight: bold;">Inicia sesión</a>
+                </p>
+                <div id="admin-reg-error-msg" class="error-text hidden"></div>
+            </div>
+        </section>
+
+        <section id="admin-panel-view" class="admin-panel hidden">
+            <h2>¡Bienvenido al Panel de Control!</h2>
+        </section>
+    </main>
+
+    <script type="module" src="admin-panel.js"></script>
+</body>
+</html>

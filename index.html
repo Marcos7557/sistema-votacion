@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Votación Colectiva</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <header>
+        <h1>Sistema de Votación Flexible</h1>
+    </header>
+
+    <main class="container">
+
+        <section id="login-view" class="login-panel">
+            <div class="login-box">
+                <h2>Ingreso al Sistema</h2>
+                <p>Por favor, ingresa tu número de DUI para verificar si estás habilitado para votar.</p>
+                <div class="input-group">
+                    <input type="text" id="input-dui-login" placeholder="00000000-0" maxlength="10" autocomplete="off">
+                </div>
+                <button id="btn-ingresar" class="btn-primary">Ingresar a Votación</button>
+                <p id="login-error-msg" class="error-text hidden"></p>
+            </div>
+        </section>
+
+        <section id="voter-view" class="voter-panel hidden">
+            <div class="voter-header">
+                <h2>Opciones Disponibles</h2>
+                <div id="timer-display" class="timer-box">Tiempo restante: --:--</div>
+                <p class="rules-text">Selecciona la opción de tu preferencia. Tu voto se registrará de forma inmediata y el sistema se cerrará.</p>
+            </div>
+            
+            <div class="voting-grid" id="voting-grid"></div>
+        </section>
+
+        <section id="results-panel" class="results-panel hidden">
+            <h2>Resultados Finales</h2>
+            <div id="results-list"></div>
+        </section>
+    </main>
+
+    <script type="module" src="index.js"></script>
+</body>
+</html>
