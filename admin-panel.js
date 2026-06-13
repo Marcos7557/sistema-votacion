@@ -7,6 +7,9 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, se
 // Inicializamos el servicio de autenticación
 const auth = getAuth();
 
+// Arreglo interno para almacenar los DUIs inscritos con su marca de tiempo
+let padronDuis = [];
+
 // ========================================================
 // 1. CONTROL DE INTERFAZ INTERNA (LOGIN vs REGISTRO vs RECUPERACIÓN)
 // ========================================================
@@ -17,7 +20,7 @@ const boxRecover = document.getElementById("admin-box-recover");
 
 const linkIrARegistro = document.getElementById("link-ir-a-registro");
 const linkIrALogin = document.getElementById("link-ir-a-login");
-const linkIrARecuperar = document.getElementById("link-ir-a-recover"); // Enlace de olvido de contraseña
+const linkIrARecuperar = document.getElementById("link-ir-a-recuperar"); // Enlace corregido para coincidir con tu HTML
 const linkRecuperarALogin = document.getElementById("link-recuperar-a-login");
 
 // Alternar a la vista de Registro
@@ -188,7 +191,140 @@ if (btnExecuteRecover) {
 
 
 // ========================================================
-// 3. TUS FUNCIONES DE PROCESAMIENTO EXISTENTES
+// 3. NUEVA LÓGICA: GESTIÓN DE PADRÓN DE DUIs Y VENTANA FLOTANTE
+// ========================================================
+
+const inputNuevoDui = document.getElementById("nuevo-dui");
+const btnAddDui = document.getElementById("btn-add-dui");
+const archivoDuisInput = document.getElementById("archivo-duis");
+
+const modalPadron = document.getElementById("modal-padron");
+const btnVerPadron = document.getElementById("btn-ver-padron");
+const btnCerrarModal = document.getElementById("btn-cerrar-modal");
+const listaDuisModal = document.getElementById("lista-duis-modal");
+const selectOrdenarDuis = document.getElementById("ordenar-duis");
+const txtTotalDuis = document.getElementById("total-duis");
+
+// Inicializar la ventana flotante oculta al cargar
+if (modalPadron) {
+    modalPadron.classList.add("hidden");
+}
+
+// Función para renderizar y ordenar la lista en la ventana flotante
+function actualizarListaModal() {
+    if (!listaDuisModal) return;
+
+    // Clonamos la lista para no alterar el orden de registro original
+    let duisOrdenados = [...padronDuis];
+    const criterio = selectOrdenarDuis ? selectOrdenarDuis.value : "tiempo";
+
+    if (criterio === "numero") {
+        // Ordenar de menor a mayor quitando guiones temporalmente para comparar números puros
+        duisOrdenados.sort((a, b) => {
+            const numA = parseInt(a.dui.replace("-", ""), 10);
+            const numB = parseInt(b.dui.replace("-", ""), 10);
+            return numA - numB;
+        });
+    }
+
+    // Limpiar contenedor e imprimir elementos
+    listaDuisModal.innerHTML = "";
+    duisOrdenados.forEach((item) => {
+        const li = document.createElement("li");
+        li.style.padding = "6px 8px";
+        li.style.borderBottom = "1px solid #e5e7eb";
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.innerText = item.dui;
+        listaDuisModal.appendChild(li);
+    });
+
+    // Actualizar el contador total
+    if (txtTotalDuis) {
+        txtTotalDuis.innerText = `Total: ${padronDuis.length} DUIs`;
+    }
+}
+
+// Evento: Agregar un DUI manualmente con el botón "+"
+if (btnAddDui && inputNuevoDui) {
+    btnAddDui.addEventListener("click", () => {
+        const valorDui = inputNuevoDui.value.trim();
+
+        if (valorDui.length < 10) {
+            alert("Por favor introduce un número de DUI válido (10 caracteres).");
+            return;
+        }
+
+        // Comprobación para evitar duplicados repetidos
+        const existe = padronDuis.some(item => item.dui === valorDui);
+        if (existe) {
+            alert("Este número de DUI ya está inscrito en la lista.");
+            return;
+        }
+
+        // Insertamos el registro con su marca de tiempo
+        padronDuis.push({
+            dui: valorDui,
+            timestamp: Date.now()
+        });
+
+        // Limpiar el cuadro de texto de inmediato y reenfocar para el siguiente
+        inputNuevoDui.value = "";
+        inputNuevoDui.focus();
+
+        // Actualiza el modal en segundo plano
+        actualizarListaModal();
+    });
+}
+
+// Evento: Carga Masiva desde archivo .txt
+if (archivoDuisInput) {
+    archivoDuisInput.addEventListener("change", async (e) => {
+        const archivo = e.target.files[0];
+        if (!archivo) return;
+
+        try {
+            const duisCargados = await leerArchivoDUIs(archivo);
+            duisCargados.forEach(valDui => {
+                if (!padronDuis.some(item => item.dui === valDui)) {
+                    padronDuis.push({
+                        dui: valDui,
+                        timestamp: Date.now()
+                    });
+                }
+            });
+            actualizarListaModal();
+            alert("Archivo cargado con éxito. Los DUIs se añadieron al padrón.");
+        } catch (error) {
+            console.error("Error al procesar el archivo:", error);
+            alert("No se pudo leer el archivo de texto.");
+        }
+        archivoDuisInput.value = ""; // Limpiar input de archivo
+    });
+}
+
+// Eventos para abrir y cerrar la ventana flotante (Modal)
+if (btnVerPadron && modalPadron) {
+    btnVerPadron.addEventListener("click", () => {
+        actualizarListaModal();
+        modalPadron.classList.remove("hidden");
+    });
+}
+
+if (btnCerrarModal && modalPadron) {
+    btnCerrarModal.addEventListener("click", () => {
+        modalPadron.classList.add("hidden");
+    });
+}
+
+// Cambiar el orden cuando el usuario cambie la opción del selector
+if (selectOrdenarDuis) {
+    selectOrdenarDuis.addEventListener("change", actualizarListaModal);
+}
+
+
+// ========================================================
+// 4. TUS FUNCIONES DE PROCESAMIENTO EXISTENTES
 // ========================================================
 
 // Función para procesar el archivo de DUIs cargado por el Admin
