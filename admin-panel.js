@@ -1,20 +1,24 @@
 // admin-panel.js
 import { db } from "./firebase-config.js";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-// Importamos Firebase Authentication para gestionar accesos seguros
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+// Importamos Firebase Authentication incluyendo la función de restaurar contraseñas
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Inicializamos el servicio de autenticación
 const auth = getAuth();
 
 // ========================================================
-// 1. CONTROL DE INTERFAZ INTERNA (LOGIN VS REGISTRO)
+// 1. CONTROL DE INTERFAZ INTERNA (LOGIN vs REGISTRO vs RECUPERACIÓN)
 // ========================================================
 
 const boxLogin = document.getElementById("admin-box-login");
 const boxRegister = document.getElementById("admin-box-register");
+const boxRecover = document.getElementById("admin-box-recover");
+
 const linkIrARegistro = document.getElementById("link-ir-a-registro");
 const linkIrALogin = document.getElementById("link-ir-a-login");
+const linkIrARecuperar = document.getElementById("link-ir-a-recover"); // Enlace de olvido de contraseña
+const linkRecuperarALogin = document.getElementById("link-recuperar-a-login");
 
 // Alternar a la vista de Registro
 if (linkIrARegistro) {
@@ -22,17 +26,41 @@ if (linkIrARegistro) {
         e.preventDefault();
         boxLogin.classList.add("hidden");
         boxRegister.classList.remove("hidden");
+        boxRecover.classList.add("hidden");
         document.getElementById("admin-error-msg").classList.add("hidden");
     });
 }
 
-// Alternar a la vista de Iniciar Sesión
+// Alternar a la vista de Iniciar Sesión (desde Registro)
 if (linkIrALogin) {
     linkIrALogin.addEventListener("click", (e) => {
         e.preventDefault();
         boxRegister.classList.add("hidden");
         boxLogin.classList.remove("hidden");
+        boxRecover.classList.add("hidden");
         document.getElementById("admin-reg-error-msg").classList.add("hidden");
+    });
+}
+
+// Alternar a la vista de Recuperar Contraseña
+if (linkIrARecuperar) {
+    linkIrARecuperar.addEventListener("click", (e) => {
+        e.preventDefault();
+        boxLogin.classList.add("hidden");
+        boxRegister.classList.add("hidden");
+        boxRecover.classList.remove("hidden");
+        document.getElementById("admin-error-msg").classList.add("hidden");
+    });
+}
+
+// Alternar de Recuperación de vuelta al Inicio de Sesión
+if (linkRecuperarALogin) {
+    linkRecuperarALogin.addEventListener("click", (e) => {
+        e.preventDefault();
+        boxRecover.classList.add("hidden");
+        boxLogin.classList.remove("hidden");
+        boxRegister.classList.add("hidden");
+        document.getElementById("admin-recover-msg").classList.add("hidden");
     });
 }
 
@@ -58,11 +86,9 @@ if (btnExecuteLogin) {
         }
 
         try {
-            // Intento de inicio de sesión seguro en Firebase
             const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-            const user = userCredential.user;
             
-            // Si es correcto, pasamos al Panel Administrativo
+            // Pasamos directo al Panel Administrativo estructurado
             document.getElementById("admin-login-view").classList.add("hidden");
             document.getElementById("admin-panel-view").classList.remove("hidden");
             
@@ -74,18 +100,20 @@ if (btnExecuteLogin) {
     });
 }
 
-// BOTÓN: Ejecutar Registro de Nuevo Administrador
+// BOTÓN: Ejecutar Registro de Nuevo Administrador (Recogiendo todos los datos oficiales)
 const btnExecuteRegister = document.getElementById("btn-execute-register");
 if (btnExecuteRegister) {
     btnExecuteRegister.addEventListener("click", async () => {
         const name = document.getElementById("admin-reg-name").value.trim();
+        const dui = document.getElementById("admin-reg-dui").value.trim();
+        const phone = document.getElementById("admin-reg-phone").value.trim();
         const email = document.getElementById("admin-reg-email").value.trim();
         const pass = document.getElementById("admin-reg-pass").value;
         const errorRegMsg = document.getElementById("admin-reg-error-msg");
 
         errorRegMsg.classList.add("hidden");
 
-        if (!name || !email || !pass) {
+        if (!name || !dui || !phone || !email || !pass) {
             errorRegMsg.innerText = "Todos los campos son obligatorios para el registro.";
             errorRegMsg.classList.remove("hidden");
             return;
@@ -102,15 +130,17 @@ if (btnExecuteRegister) {
             const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
             const user = userCredential.user;
 
-            // Guardamos sus datos adicionales de perfil en la colección "administradores" de Firestore
+            // Guardamos el perfil completo en la colección de Firestore
             await addDoc(collection(db, "administradores"), {
                 uid: user.uid,
                 nombre: name,
+                dui: dui,
+                telefono: phone,
                 correo: email,
                 fechaRegistro: new Date()
             });
 
-            // Limpiamos los campos y redirigimos automáticamente al panel principal
+            // Redirigimos automáticamente al panel principal activo
             document.getElementById("admin-login-view").classList.add("hidden");
             document.getElementById("admin-panel-view").classList.remove("hidden");
 
@@ -126,6 +156,36 @@ if (btnExecuteRegister) {
     });
 }
 
+// BOTÓN: Ejecutar Recuperación de Contraseña por Correo
+const btnExecuteRecover = document.getElementById("btn-execute-recover");
+if (btnExecuteRecover) {
+    btnExecuteRecover.addEventListener("click", async () => {
+        const email = document.getElementById("admin-recover-email").value.trim();
+        const recoverMsg = document.getElementById("admin-recover-msg");
+
+        recoverMsg.classList.add("hidden");
+
+        if (!email) {
+            recoverMsg.innerText = "Por favor, ingresa tu correo electrónico.";
+            recoverMsg.style.color = "#dc2626";
+            recoverMsg.classList.remove("hidden");
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            recoverMsg.innerText = "¡Enlace enviado! Revisa tu bandeja de entrada o spam.";
+            recoverMsg.style.color = "#16a34a";
+            recoverMsg.classList.remove("hidden");
+        } catch (error) {
+            console.error("Error de restauración:", error);
+            recoverMsg.innerText = "No se pudo enviar el correo. Verifica el formato.";
+            recoverMsg.style.color = "#dc2626";
+            recoverMsg.classList.remove("hidden");
+        }
+    });
+}
+
 
 // ========================================================
 // 3. TUS FUNCIONES DE PROCESAMIENTO EXISTENTES
@@ -137,7 +197,6 @@ export function leerArchivoDUIs(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const contenido = e.target.result;
-            // Separa los DUIs por línea o por coma, limpiando espacios y guiones
             const listaDuis = contenido.split(/\r?\n/)
                                        .map(dui => dui.trim())
                                        .filter(dui => dui.length > 0);

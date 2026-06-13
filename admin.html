@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+
+    <header>
+        <h1>Panel de Control</h1>
+        <p class="subtitle">Gestión y Apertura de Votaciones Comunitarias</p>
+    </header>
+
     <main class="container">
-        <header>
-            <h1>Panel de Control</h1>
-            <p class="subtitle">Gestión y Apertura de Votaciones comunitarias</p>
-        </header>
 
         <section id="admin-login-view" class="login-panel">
+            
             <div id="admin-box-login" class="login-box">
                 <h2>Acceso de Administrador</h2>
                 <p>Introduce tus credenciales de seguridad para ingresar:</p>
@@ -21,42 +24,128 @@
                     <label>Correo Electrónico:</label>
                     <input type="email" id="admin-login-email" placeholder="ejemplo@correo.com" autocomplete="username">
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top: 10px;">
                     <label>Contraseña:</label>
                     <input type="password" id="admin-login-pass" placeholder="••••••••" autocomplete="current-password">
                 </div>
                 <button id="btn-execute-login" class="btn-primary" style="margin-top: 15px;">Iniciar Sesión</button>
+                
                 <p style="text-align: center; margin-top: 15px; font-size: 13px;">
-                    ¿No tienes cuenta? <a href="#" id="link-ir-a-registro" style="color: #2563eb; font-weight: bold;">Regístrate aquí</a>
+                    ¿No tienes cuenta? <a href="#" id="link-ir-a-registro" style="color: #2563eb; font-weight: bold; text-decoration: none;">Regístrate aquí</a>
+                </p>
+                <p style="text-align: center; margin-top: 5px; font-size: 13px;">
+                    <a href="#" id="link-ir-a-recuperar" style="color: #4b5563; text-decoration: underline;">¿Olvidaste tu contraseña?</a>
                 </p>
                 <div id="admin-error-msg" class="error-text hidden"></div>
             </div>
 
             <div id="admin-box-register" class="login-box hidden">
                 <h2>Registro de Administrador</h2>
+                <p>Crea tu cuenta rellenando el perfil oficial:</p>
                 <div class="input-group">
                     <label>Nombre Completo:</label>
-                    <input type="text" id="admin-reg-name" placeholder="Tu Nombre">
+                    <input type="text" id="admin-reg-name" placeholder="Juan Pérez">
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top: 10px;">
+                    <label>Número de DUI:</label>
+                    <input type="text" id="admin-reg-dui" placeholder="00000000-0" maxlength="10">
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
+                    <label>Número de Teléfono:</label>
+                    <input type="text" id="admin-reg-phone" placeholder="0000-0000" maxlength="9">
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
                     <label>Correo Electrónico:</label>
                     <input type="email" id="admin-reg-email" placeholder="ejemplo@correo.com">
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top: 10px;">
                     <label>Contraseña (Mínimo 6 caracteres):</label>
                     <input type="password" id="admin-reg-pass" placeholder="••••••••">
                 </div>
                 <button id="btn-execute-register" class="btn-success" style="margin-top: 15px;">Crear Cuenta Admin</button>
+                
                 <p style="text-align: center; margin-top: 15px; font-size: 13px;">
-                    ¿Ya tienes cuenta? <a href="#" id="link-ir-a-login" style="color: #2563eb; font-weight: bold;">Inicia sesión</a>
+                    ¿Ya tienes cuenta? <a href="#" id="link-ir-a-login" style="color: #2563eb; font-weight: bold; text-decoration: none;">Inicia sesión</a>
                 </p>
                 <div id="admin-reg-error-msg" class="error-text hidden"></div>
             </div>
+
+            <div id="admin-box-recover" class="login-box hidden">
+                <h2>Recuperar Contraseña</h2>
+                <p>Ingresa tu correo para enviarte un enlace de restauración:</p>
+                <div class="input-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="admin-recover-email" placeholder="ejemplo@correo.com">
+                </div>
+                <button id="btn-execute-recover" class="btn-primary" style="margin-top: 15px; background-color: #4b5563;">Enviar Enlace</button>
+                
+                <p style="text-align: center; margin-top: 15px; font-size: 13px;">
+                    <a href="#" id="link-recuperar-a-login" style="color: #2563eb; font-weight: bold; text-decoration: none;">Volver al Login</a>
+                </p>
+                <div id="admin-recover-msg" class="error-text hidden" style="color: #16a34a;"></div>
+            </div>
+
         </section>
 
-        <section id="admin-panel-view" class="admin-panel hidden">
-            <h2>¡Bienvenido al Panel de Control!</h2>
+
+        <section id="admin-panel-view" class="admin-panel">
+            <h2>Panel de Control Administrativo</h2>
+            <p class="panel-welcome-text">¡Bienvenido! Desde aquí puedes coordinar el proceso de votación.</p>
+            
+            <div class="admin-grid">
+                
+                <div class="admin-box">
+                    <h3>Configurar Tipo de Votación</h3>
+                    <div class="config-group">
+                        <label for="tipo-votacion">Modo de Elección:</label>
+                        <select id="tipo-votacion">
+                            <option value="unico">Ganador Único (Elegir 1 opción)</option>
+                            <option value="multiple">Múltiples Ganadores (Elegir varios participantes)</option>
+                        </select>
+                    </div>
+                    <div class="config-group" style="margin-top: 15px;">
+                        <label for="tiempo-duracion">Duración (en minutos):</label>
+                        <input type="number" id="tiempo-duracion" value="10" min="1">
+                    </div>
+                </div>
+
+                <div class="admin-box">
+                    <h3>Padrón de Votantes Habilitados</h3>
+                    <div class="input-group-row" style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <input type="text" id="nuevo-dui" placeholder="00000000-0" maxlength="10" style="flex: 1;">
+                        <button type="button" id="btn-add-dui" class="btn-success" style="padding: 5px 15px;">+</button>
+                    </div>
+
+                    <div class="config-group" style="margin-bottom: 15px;">
+                        <label for="archivo-duis" style="font-size: 13px; font-weight: bold;">Carga Masiva (.txt):</label>
+                        <input type="file" id="archivo-duis" accept=".txt" style="margin-top: 5px; font-size: 12px;">
+                    </div>
+
+                    <div class="dui-list-container" style="max-height: 120px; overflow-y: auto; background: #f3f4f6; padding: 5px; border-radius: 5px;">
+                        <ul id="lista-duis-previa" style="list-style: none; padding: 0; margin: 0; font-size: 13px;"></ul>
+                    </div>
+                </div>
+
+                <div class="admin-box full-width" style="grid-column: span 2;">
+                    <h3>Inscripción de Participantes / Opciones</h3>
+                    <form id="form-inscripcion" class="inscription-form">
+                        <div class="input-group">
+                            <input type="text" id="nuevo-titulo" placeholder="Título de la propuesta o candidato" required style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div class="input-group" style="margin-top: 10px;">
+                            <textarea id="nueva-descripcion" placeholder="Breve descripción de los objetivos o perfil..." rows="2" required style="width: 100%; box-sizing: border-box; resize: vertical;"></style></textarea>
+                        </div>
+                        <button type="submit" class="btn-success" style="margin-top: 10px;">Inscribir Participante</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="admin-actions" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="btn-reset" class="btn-secondary" style="background-color: #dc2626; color: white;">Reiniciar Sistema</button>
+                <button id="btn-finalize" class="btn-primary">Lanzar Votación en Línea</button>
+            </div>
         </section>
+
     </main>
 
     <script type="module" src="admin-panel.js"></script>
