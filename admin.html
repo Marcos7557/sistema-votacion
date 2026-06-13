@@ -18,7 +18,7 @@
         <section id="admin-login-view" class="login-panel">
             
             <div id="admin-box-login" class="login-box">
-                <h2>Acceso de Administrador</h2>
+                <h2>Acceso de Administrator</h2>
                 <p>Introduce tus credenciales de seguridad para ingresar:</p>
                 <div class="input-group">
                     <label>Correo Electrónico:</label>
@@ -87,8 +87,7 @@
 
         </section>
 
-
-        <section id="admin-panel-view" class="admin-panel">
+        <section id="admin-panel-view" class="admin-panel hidden">
             <h2>Panel de Control Administrativo</h2>
             <p class="panel-welcome-text">¡Bienvenido! Desde aquí puedes coordinar el proceso de votación.</p>
             
@@ -121,9 +120,9 @@
                         <input type="file" id="archivo-duis" accept=".txt" style="margin-top: 5px; font-size: 12px;">
                     </div>
 
-                    <div class="dui-list-container" style="max-height: 120px; overflow-y: auto; background: #f3f4f6; padding: 5px; border-radius: 5px;">
-                        <ul id="lista-duis-previa" style="list-style: none; padding: 0; margin: 0; font-size: 13px;"></ul>
-                    </div>
+                    <button type="button" id="btn-ver-padron" class="btn-primary" style="width: 100%; background-color: #4b5563; margin-top: 5px;">
+                        Ver Lista de DUIs Inscritos
+                    </button>
                 </div>
 
                 <div class="admin-box full-width" style="grid-column: span 2;">
@@ -133,7 +132,7 @@
                             <input type="text" id="nuevo-titulo" placeholder="Título de la propuesta o candidato" required style="width: 100%; box-sizing: border-box;">
                         </div>
                         <div class="input-group" style="margin-top: 10px;">
-                            <textarea id="nueva-descripcion" placeholder="Breve descripción de los objetivos o perfil..." rows="2" required style="width: 100%; box-sizing: border-box; resize: vertical;"></style></textarea>
+                            <textarea id="nueva-descripcion" placeholder="Breve descripción de los objetivos o perfil..." rows="2" required style="width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
                         </div>
                         <button type="submit" class="btn-success" style="margin-top: 10px;">Inscribir Participante</button>
                     </form>
@@ -147,6 +146,31 @@
         </section>
 
     </main>
+
+    <div id="modal-padron" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;">
+        <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 450px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #1e3a8a;">DUIs Autorizados para Votar</h3>
+                <button id="btn-cerrar-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; line-height: 1;">&times;</button>
+            </div>
+
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                <label style="font-size: 13px; font-weight: bold; color: #374151;">Ordenar por:</label>
+                <select id="ordenar-duis" style="flex: 1; padding: 6px; border-radius: 4px; border: 1px solid #d1d5db; background: white; font-size: 13px;">
+                    <option value="tiempo">Tiempo de registro</option>
+                    <option value="numero">Número (Menor a Mayor)</option>
+                </select>
+            </div>
+
+            <div style="max-height: 250px; overflow-y: auto; background: #f3f4f6; padding: 10px; border-radius: 5px; border: 1px solid #e5e7eb;">
+                <ul id="lista-duis-modal" style="list-style: none; padding: 0; margin: 0; font-size: 14px; color: #1f2937;"></ul>
+            </div>
+            
+            <div style="margin-top: 15px; text-align: right;">
+                <span id="total-duis" style="font-size: 13px; font-weight: bold; color: #1f2937;">Total: 0 DUIs</span>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="admin-panel.js"></script>
 </body>
