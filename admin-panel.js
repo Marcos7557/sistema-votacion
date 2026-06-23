@@ -25,17 +25,9 @@ function aplicarMascaraDUI(input) {
     });
 }
 
-// Aplicar la máscara a los campos correspondientes al cargar el archivo
-const inputNuevoDui = document.getElementById("nuevo-dui");
-const adminRegDui = document.getElementById("admin-reg-dui");
-
-aplicarMascaraDUI(inputNuevoDui);
-aplicarMascaraDUI(adminRegDui);
-
 // ========================================================
-// 1. CONTROL DE INTERFAZ INTERNA (LOGIN vs REGISTRO vs RECUPERACIÓN)
+// 1. DECLARACIÓN DE ELEMENTOS DEL DOM (Garantiza que existan antes de usarlos)
 // ========================================================
-
 const boxLogin = document.getElementById("admin-box-login");
 const boxRegister = document.getElementById("admin-box-register");
 const boxRecover = document.getElementById("admin-box-recover");
@@ -44,6 +36,14 @@ const linkIrARegistro = document.getElementById("link-ir-a-registro");
 const linkIrALogin = document.getElementById("link-ir-a-login");
 const linkIrARecuperar = document.getElementById("link-ir-a-recuperar"); 
 const linkRecuperarALogin = document.getElementById("link-recuperar-a-login");
+
+const inputNuevoDui = document.getElementById("nuevo-dui");
+const btnAddDui = document.getElementById("btn-add-dui");
+const adminRegDui = document.getElementById("admin-reg-dui");
+
+// ACTIVACIÓN DE MÁSCARAS AUTOMÁTICAS
+aplicarMascaraDUI(inputNuevoDui);
+aplicarMascaraDUI(adminRegDui);
 
 // Alternar a la vista de Registro
 if (linkIrARegistro) {
