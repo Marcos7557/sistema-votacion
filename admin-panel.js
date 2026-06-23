@@ -11,6 +11,28 @@ const auth = getAuth();
 let padronDuis = [];
 
 // ========================================================
+// MÁSCARAS Y FORMATEADORES AUTOMÁTICOS
+// ========================================================
+function aplicarMascaraDUI(input) {
+    if (!input) return;
+    input.addEventListener('input', (e) => {
+        let valor = e.target.value.replace(/\D/g, ''); // Remueve lo que no sea número
+        if (valor.length > 8) {
+            // Coloca el guión exactamente después del octavo dígito
+            valor = valor.slice(0, 8) + '-' + valor.slice(8, 9);
+        }
+        e.target.value = valor;
+    });
+}
+
+// Aplicar la máscara a los campos correspondientes al cargar el archivo
+const inputNuevoDui = document.getElementById("nuevo-dui");
+const adminRegDui = document.getElementById("admin-reg-dui");
+
+aplicarMascaraDUI(inputNuevoDui);
+aplicarMascaraDUI(adminRegDui);
+
+// ========================================================
 // 1. CONTROL DE INTERFAZ INTERNA (LOGIN vs REGISTRO vs RECUPERACIÓN)
 // ========================================================
 
@@ -20,17 +42,18 @@ const boxRecover = document.getElementById("admin-box-recover");
 
 const linkIrARegistro = document.getElementById("link-ir-a-registro");
 const linkIrALogin = document.getElementById("link-ir-a-login");
-const linkIrARecuperar = document.getElementById("link-ir-a-recuperar"); // Enlace corregido para coincidir con tu HTML
+const linkIrARecuperar = document.getElementById("link-ir-a-recuperar"); 
 const linkRecuperarALogin = document.getElementById("link-recuperar-a-login");
 
 // Alternar a la vista de Registro
 if (linkIrARegistro) {
     linkIrARegistro.addEventListener("click", (e) => {
         e.preventDefault();
-        boxLogin.classList.add("hidden");
-        boxRegister.classList.remove("hidden");
-        boxRecover.classList.add("hidden");
-        document.getElementById("admin-error-msg").classList.add("hidden");
+        if (boxLogin) boxLogin.classList.add("hidden");
+        if (boxRegister) boxRegister.classList.remove("hidden");
+        if (boxRecover) boxRecover.classList.add("hidden");
+        const err = document.getElementById("admin-error-msg");
+        if (err) err.classList.add("hidden");
     });
 }
 
@@ -38,10 +61,11 @@ if (linkIrARegistro) {
 if (linkIrALogin) {
     linkIrALogin.addEventListener("click", (e) => {
         e.preventDefault();
-        boxRegister.classList.add("hidden");
-        boxLogin.classList.remove("hidden");
-        boxRecover.classList.add("hidden");
-        document.getElementById("admin-reg-error-msg").classList.add("hidden");
+        if (boxRegister) boxRegister.classList.add("hidden");
+        if (boxLogin) boxLogin.classList.remove("hidden");
+        if (boxRecover) boxRecover.classList.add("hidden");
+        const errReg = document.getElementById("admin-reg-error-msg");
+        if (errReg) errReg.classList.add("hidden");
     });
 }
 
@@ -49,10 +73,11 @@ if (linkIrALogin) {
 if (linkIrARecuperar) {
     linkIrARecuperar.addEventListener("click", (e) => {
         e.preventDefault();
-        boxLogin.classList.add("hidden");
-        boxRegister.classList.add("hidden");
-        boxRecover.classList.remove("hidden");
-        document.getElementById("admin-error-msg").classList.add("hidden");
+        if (boxLogin) boxLogin.classList.add("hidden");
+        if (boxRegister) boxRegister.classList.add("hidden");
+        if (boxRecover) boxRecover.classList.remove("hidden");
+        const err = document.getElementById("admin-error-msg");
+        if (err) err.classList.add("hidden");
     });
 }
 
@@ -60,10 +85,11 @@ if (linkIrARecuperar) {
 if (linkRecuperarALogin) {
     linkRecuperarALogin.addEventListener("click", (e) => {
         e.preventDefault();
-        boxRecover.classList.add("hidden");
-        boxLogin.classList.remove("hidden");
-        boxRegister.classList.add("hidden");
-        document.getElementById("admin-recover-msg").classList.add("hidden");
+        if (boxRecover) boxRecover.classList.add("hidden");
+        if (boxLogin) boxLogin.classList.remove("hidden");
+        if (boxRegister) boxRegister.classList.add("hidden");
+        const recMsg = document.getElementById("admin-recover-msg");
+        if (recMsg) recMsg.classList.add("hidden");
     });
 }
 
@@ -80,30 +106,35 @@ if (btnExecuteLogin) {
         const pass = document.getElementById("admin-login-pass").value;
         const errorMsg = document.getElementById("admin-error-msg");
 
-        errorMsg.classList.add("hidden");
+        if (errorMsg) errorMsg.classList.add("hidden");
 
         if (!email || !pass) {
-            errorMsg.innerText = "Por favor, completa todos los campos.";
-            errorMsg.classList.remove("hidden");
+            if (errorMsg) {
+                errorMsg.innerText = "Por favor, completa todos los campos.";
+                errorMsg.classList.remove("hidden");
+            }
             return;
         }
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, pass);
             
-            // Pasamos directo al Panel Administrativo estructurado
-            document.getElementById("admin-login-view").classList.add("hidden");
-            document.getElementById("admin-panel-view").classList.remove("hidden");
+            const loginView = document.getElementById("admin-login-view");
+            const panelView = document.getElementById("admin-panel-view");
+            if (loginView) loginView.classList.add("hidden");
+            if (panelView) panelView.classList.remove("hidden");
             
         } catch (error) {
             console.error("Error al loguear admin:", error);
-            errorMsg.innerText = "Credenciales incorrectas o administrador no registrado.";
-            errorMsg.classList.remove("hidden");
+            if (errorMsg) {
+                errorMsg.innerText = "Credenciales incorrectas o administrador no registrado.";
+                errorMsg.classList.remove("hidden");
+            }
         }
     });
 }
 
-// BOTÓN: Ejecutar Registro de Nuevo Administrador (Recogiendo todos los datos oficiales)
+// BOTÓN: Ejecutar Registro de Nuevo Administrador
 const btnExecuteRegister = document.getElementById("btn-execute-register");
 if (btnExecuteRegister) {
     btnExecuteRegister.addEventListener("click", async () => {
@@ -114,26 +145,38 @@ if (btnExecuteRegister) {
         const pass = document.getElementById("admin-reg-pass").value;
         const errorRegMsg = document.getElementById("admin-reg-error-msg");
 
-        errorRegMsg.classList.add("hidden");
+        if (errorRegMsg) errorRegMsg.classList.add("hidden");
 
         if (!name || !dui || !phone || !email || !pass) {
-            errorRegMsg.innerText = "Todos los campos son obligatorios para el registro.";
-            errorRegMsg.classList.remove("hidden");
+            if (errorRegMsg) {
+                errorRegMsg.innerText = "Todos los campos son obligatorios para el registro.";
+                errorRegMsg.classList.remove("hidden");
+            }
+            return;
+        }
+
+        // VALIDACIÓN DE FORMATO DE DUI EN REGISTRO DE ADMIN
+        const formatoDuiValido = /^\d{8}-\d{1}$/;
+        if (!formatoDuiValido.test(dui)) {
+            if (errorRegMsg) {
+                errorRegMsg.innerText = "Por favor introduce un número de DUI válido (Ejemplo: 01234567-8).";
+                errorRegMsg.classList.remove("hidden");
+            }
             return;
         }
 
         if (pass.length < 6) {
-            errorRegMsg.innerText = "La contraseña debe tener un mínimo de 6 caracteres.";
-            errorRegMsg.classList.remove("hidden");
+            if (errorRegMsg) {
+                errorRegMsg.innerText = "La contraseña debe tener un mínimo de 6 caracteres.";
+                errorRegMsg.classList.remove("hidden");
+            }
             return;
         }
 
         try {
-            // Creamos el usuario en Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
             const user = userCredential.user;
 
-            // Guardamos el perfil completo en la colección de Firestore
             await addDoc(collection(db, "administradores"), {
                 uid: user.uid,
                 nombre: name,
@@ -143,18 +186,21 @@ if (btnExecuteRegister) {
                 fechaRegistro: new Date()
             });
 
-            // Redirigimos automáticamente al panel principal activo
-            document.getElementById("admin-login-view").classList.add("hidden");
-            document.getElementById("admin-panel-view").classList.remove("hidden");
+            const loginView = document.getElementById("admin-login-view");
+            const panelView = document.getElementById("admin-panel-view");
+            if (loginView) loginView.classList.add("hidden");
+            if (panelView) panelView.classList.remove("hidden");
 
         } catch (error) {
             console.error("Error en el registro:", error);
-            if (error.code === "auth/email-already-in-use") {
-                errorRegMsg.innerText = "Este correo electrónico ya se encuentra registrado.";
-            } else {
-                errorRegMsg.innerText = "Ocurrió un error en el registro. Inténtalo de nuevo.";
+            if (errorRegMsg) {
+                if (error.code === "auth/email-already-in-use") {
+                    errorRegMsg.innerText = "Este correo electrónico ya se encuentra registrado.";
+                } else {
+                    errorRegMsg.innerText = "Ocurrió un error en el registro. Inténtalo de nuevo.";
+                }
+                errorRegMsg.classList.remove("hidden");
             }
-            errorRegMsg.classList.remove("hidden");
         }
     });
 }
@@ -166,38 +212,41 @@ if (btnExecuteRecover) {
         const email = document.getElementById("admin-recover-email").value.trim();
         const recoverMsg = document.getElementById("admin-recover-msg");
 
-        recoverMsg.classList.add("hidden");
+        if (recoverMsg) recoverMsg.classList.add("hidden");
 
         if (!email) {
-            recoverMsg.innerText = "Por favor, ingresa tu correo electrónico.";
-            recoverMsg.style.color = "#dc2626";
-            recoverMsg.classList.remove("hidden");
+            if (recoverMsg) {
+                recoverMsg.innerText = "Por favor, ingresa tu correo electrónico.";
+                recoverMsg.style.color = "#dc2626";
+                recoverMsg.classList.remove("hidden");
+            }
             return;
         }
 
         try {
             await sendPasswordResetEmail(auth, email);
-            recoverMsg.innerText = "¡Enlace enviado! Revisa tu bandeja de entrada o spam.";
-            recoverMsg.style.color = "#16a34a";
-            recoverMsg.classList.remove("hidden");
+            if (recoverMsg) {
+                recoverMsg.innerText = "¡Enlace enviado! Revisa tu bandeja de entrada o spam.";
+                recoverMsg.style.color = "#16a34a";
+                recoverMsg.classList.remove("hidden");
+            }
         } catch (error) {
             console.error("Error de restauración:", error);
-            recoverMsg.innerText = "No se pudo enviar el correo. Verifica el formato.";
-            recoverMsg.style.color = "#dc2626";
-            recoverMsg.classList.remove("hidden");
+            if (recoverMsg) {
+                recoverMsg.innerText = "No se pudo enviar el correo. Verifica el formato.";
+                recoverMsg.style.color = "#dc2626";
+                recoverMsg.classList.remove("hidden");
+            }
         }
     });
 }
 
 
 // ========================================================
-// 3. NUEVA LÓGICA: GESTIÓN DE PADRÓN DE DUIs Y VENTANA FLOTANTE
+// 3. GESTIÓN DE PADRÓN DE DUIs Y VENTANA FLOTANTE
 // ========================================================
 
-const inputNuevoDui = document.getElementById("nuevo-dui");
-const btnAddDui = document.getElementById("btn-add-dui");
 const archivoDuisInput = document.getElementById("archivo-duis");
-
 const modalPadron = document.getElementById("modal-padron");
 const btnVerPadron = document.getElementById("btn-ver-padron");
 const btnCerrarModal = document.getElementById("btn-cerrar-modal");
@@ -214,12 +263,10 @@ if (modalPadron) {
 function actualizarListaModal() {
     if (!listaDuisModal) return;
 
-    // Clonamos la lista para no alterar el orden de registro original
     let duisOrdenados = [...padronDuis];
     const criterio = selectOrdenarDuis ? selectOrdenarDuis.value : "tiempo";
 
     if (criterio === "numero") {
-        // Ordenar de menor a mayor quitando guiones temporalmente para comparar números puros
         duisOrdenados.sort((a, b) => {
             const numA = parseInt(a.dui.replace("-", ""), 10);
             const numB = parseInt(b.dui.replace("-", ""), 10);
@@ -227,7 +274,6 @@ function actualizarListaModal() {
         });
     }
 
-    // Limpiar contenedor e imprimir elementos
     listaDuisModal.innerHTML = "";
     duisOrdenados.forEach((item) => {
         const li = document.createElement("li");
@@ -239,7 +285,6 @@ function actualizarListaModal() {
         listaDuisModal.appendChild(li);
     });
 
-    // Actualizar el contador total
     if (txtTotalDuis) {
         txtTotalDuis.innerText = `Total: ${padronDuis.length} DUIs`;
     }
@@ -250,8 +295,10 @@ if (btnAddDui && inputNuevoDui) {
     btnAddDui.addEventListener("click", () => {
         const valorDui = inputNuevoDui.value.trim();
 
-        if (valorDui.length < 10) {
-            alert("Por favor introduce un número de DUI válido (10 caracteres).");
+        // VALIDACIÓN ESTRICTA DEL FORMATO DE DUI (8 dígitos, guión, 1 dígito)
+        const formatoDuiValido = /^\d{8}-\d{1}$/;
+        if (!formatoDuiValido.test(valorDui)) {
+            alert("Por favor introduce un número de DUI válido con guión (Ejemplo: 00000000-0).");
             return;
         }
 
@@ -262,17 +309,14 @@ if (btnAddDui && inputNuevoDui) {
             return;
         }
 
-        // Insertamos el registro con su marca de tiempo
         padronDuis.push({
             dui: valorDui,
             timestamp: Date.now()
         });
 
-        // Limpiar el cuadro de texto de inmediato y reenfocar para el siguiente
         inputNuevoDui.value = "";
         inputNuevoDui.focus();
 
-        // Actualiza el modal en segundo plano
         actualizarListaModal();
     });
 }
@@ -286,20 +330,24 @@ if (archivoDuisInput) {
         try {
             const duisCargados = await leerArchivoDUIs(archivo);
             duisCargados.forEach(valDui => {
-                if (!padronDuis.some(item => item.dui === valDui)) {
-                    padronDuis.push({
-                        dui: valDui,
-                        timestamp: Date.now()
-                    });
+                // Comprobación estricta de formato en elementos procesados desde el archivo
+                const formatoDuiValido = /^\d{8}-\d{1}$/;
+                if (formatoDuiValido.test(valDui)) {
+                    if (!padronDuis.some(item => item.dui === valDui)) {
+                        padronDuis.push({
+                            dui: valDui,
+                            timestamp: Date.now()
+                        });
+                    }
                 }
             });
             actualizarListaModal();
-            alert("Archivo cargado con éxito. Los DUIs se añadieron al padrón.");
+            alert("Archivo cargado con éxito. Los DUIs válidos se añadieron al padrón.");
         } catch (error) {
             console.error("Error al procesar el archivo:", error);
             alert("No se pudo leer el archivo de texto.");
         }
-        archivoDuisInput.value = ""; // Limpiar input de archivo
+        archivoDuisInput.value = ""; 
     });
 }
 
@@ -317,24 +365,30 @@ if (btnCerrarModal && modalPadron) {
     });
 }
 
-// Cambiar el orden cuando el usuario cambie la opción del selector
 if (selectOrdenarDuis) {
     selectOrdenarDuis.addEventListener("change", actualizarListaModal);
 }
 
 
 // ========================================================
-// 4. TUS FUNCIONES DE PROCESAMIENTO EXISTENTES
+// 4. FUNCIONES DE PROCESAMIENTO EXISTENTES CORREGIDAS
 // ========================================================
 
-// Función para procesar el archivo de DUIs cargado por el Admin
+// Función para procesar el archivo de DUIs cargado por el Admin (Con formateo flexible)
 export function leerArchivoDUIs(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const contenido = e.target.result;
             const listaDuis = contenido.split(/\r?\n/)
-                                       .map(dui => dui.trim())
+                                       .map(dui => {
+                                           let limpio = dui.trim().replace(/\D/g, ''); // Deja solo números enteros
+                                           if (limpio.length === 9) {
+                                               // Si viene sin guión pero tiene los 9 dígitos, se lo inyecta solo
+                                               return limpio.slice(0, 8) + '-' + limpio.slice(8, 9);
+                                           }
+                                           return dui.trim(); // Si trae guión u otra longitud pasa directo para evaluarse en el test
+                                       })
                                        .filter(dui => dui.length > 0);
             resolve(listaDuis);
         };
