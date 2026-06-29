@@ -7,7 +7,7 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, se
 // Inicializamos el servicio de autenticación
 const auth = getAuth();
 
-// Arreglo interno para almacenar los DUIs inscritos con su marca de tiempo
+// Arreglo interno para almacenar los votantes inscritos con su nombre, DUI y marca de tiempo
 let padronDuis = [];
 
 // ========================================================
@@ -26,7 +26,7 @@ function aplicarMascaraDUI(input) {
 }
 
 // ========================================================
-// 1. DECLARACIÓN DE ELEMENTOS DEL DOM (Garantiza que existan antes de usarlos)
+// 1. DECLARACIÓN DE ELEMENTOS DEL DOM
 // ========================================================
 const boxLogin = document.getElementById("admin-box-login");
 const boxRegister = document.getElementById("admin-box-register");
@@ -37,11 +37,21 @@ const linkIrALogin = document.getElementById("link-ir-a-login");
 const linkIrARecuperar = document.getElementById("link-ir-a-recuperar"); 
 const linkRecuperarALogin = document.getElementById("link-recuperar-a-login");
 
+// Elementos del Padrón (Declarados estrictamente antes de ser usados)
+const inputNuevoNombre = document.getElementById("nuevo-nombre-votante");
 const inputNuevoDui = document.getElementById("nuevo-dui");
 const btnAddDui = document.getElementById("btn-add-dui");
 const adminRegDui = document.getElementById("admin-reg-dui");
 
-// ACTIVACIÓN DE MÁSCARAS AUTOMÁTICAS
+const archivoDuisInput = document.getElementById("archivo-duis");
+const modalPadron = document.getElementById("modal-padron");
+const btnVerPadron = document.getElementById("btn-ver-padron");
+const btnCerrarModal = document.getElementById("btn-cerrar-modal");
+const listaDuisModal = document.getElementById("lista-duis-modal");
+const selectOrdenarDuis = document.getElementById("ordenar-duis");
+const txtTotalDuis = document.getElementById("total-duis");
+
+// ACTIVACIÓN SEGURA DE MÁSCARAS AUTOMÁTICAS
 aplicarMascaraDUI(inputNuevoDui);
 aplicarMascaraDUI(adminRegDui);
 
@@ -246,20 +256,12 @@ if (btnExecuteRecover) {
 // 3. GESTIÓN DE PADRÓN DE DUIs Y VENTANA FLOTANTE
 // ========================================================
 
-const archivoDuisInput = document.getElementById("archivo-duis");
-const modalPadron = document.getElementById("modal-padron");
-const btnVerPadron = document.getElementById("btn-ver-padron");
-const btnCerrarModal = document.getElementById("btn-cerrar-modal");
-const listaDuisModal = document.getElementById("lista-duis-modal");
-const selectOrdenarDuis = document.getElementById("ordenar-duis");
-const txtTotalDuis = document.getElementById("total-duis");
-
 // Inicializar la ventana flotante oculta al cargar
 if (modalPadron) {
     modalPadron.classList.add("hidden");
 }
 
-// Función para renderizar y ordenar la lista en la ventana flotante
+// Función para renderizar y ordenar la lista en la ventana flotante (Muestra Nombre y DUI)
 function actualizarListaModal() {
     if (!listaDuisModal) return;
 
@@ -277,28 +279,43 @@ function actualizarListaModal() {
     listaDuisModal.innerHTML = "";
     duisOrdenados.forEach((item) => {
         const li = document.createElement("li");
-        li.style.padding = "6px 8px";
+        li.style.padding = "8px 10px";
         li.style.borderBottom = "1px solid #e5e7eb";
         li.style.display = "flex";
-        li.style.justifyContent = "space-between";
-        li.innerText = item.dui;
+        li.style.flexDirection = "column";
+        li.style.gap = "2px";
+        
+        // Estructura para mostrar de quién es cada registro ordenadamente
+        li.innerHTML = `
+            <span style="font-weight: bold; color: #1e3a8a;">${item.nombre}</span>
+            <span style="font-size: 13px; color: #4b5563;">DUI: ${item.dui}</span>
+        `;
         listaDuisModal.appendChild(li);
     });
 
     if (txtTotalDuis) {
-        txtTotalDuis.innerText = `Total: ${padronDuis.length} DUIs`;
+        txtTotalDuis.innerText = `Total: ${padronDuis.length} Votantes`;
     }
 }
 
-// Evento: Agregar un DUI manualmente con el botón "+"
-if (btnAddDui && inputNuevoDui) {
+// Evento: Agregar un DUI con su Nombre manualmente
+if (btnAddDui && inputNuevoDui && inputNuevoNombre) {
     btnAddDui.addEventListener("click", () => {
+        const valorNombre = inputNuevoNombre.value.trim();
         const valorDui = inputNuevoDui.value.trim();
+
+        // VALIDACIÓN: Evitar campos vacíos
+        if (!valorNombre) {
+            alert("Por favor introduce el Nombre Completo del votante.");
+            inputNuevoNombre.focus();
+            return;
+        }
 
         // VALIDACIÓN ESTRICTA DEL FORMATO DE DUI (8 dígitos, guión, 1 dígito)
         const formatoDuiValido = /^\d{8}-\d{1}$/;
         if (!formatoDuiValido.test(valorDui)) {
             alert("Por favor introduce un número de DUI válido con guión (Ejemplo: 00000000-0).");
+            inputNuevoDui.focus();
             return;
         }
 
@@ -309,13 +326,17 @@ if (btnAddDui && inputNuevoDui) {
             return;
         }
 
+        // Guardamos de forma estructurada
         padronDuis.push({
+            nombre: valorNombre,
             dui: valorDui,
             timestamp: Date.now()
         });
 
+        // Limpieza de campos
+        inputNuevoNombre.value = "";
         inputNuevoDui.value = "";
-        inputNuevoDui.focus();
+        inputNuevoNombre.focus();
 
         actualizarListaModal();
     });
@@ -330,11 +351,11 @@ if (archivoDuisInput) {
         try {
             const duisCargados = await leerArchivoDUIs(archivo);
             duisCargados.forEach(valDui => {
-                // Comprobación estricta de formato en elementos procesados desde el archivo
                 const formatoDuiValido = /^\d{8}-\d{1}$/;
                 if (formatoDuiValido.test(valDui)) {
                     if (!padronDuis.some(item => item.dui === valDui)) {
                         padronDuis.push({
+                            nombre: "Carga Masiva", // Etiqueta identificadora por defecto
                             dui: valDui,
                             timestamp: Date.now()
                         });
