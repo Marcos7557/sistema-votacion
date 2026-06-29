@@ -40,7 +40,7 @@
             </div>
 
             <div id="admin-box-register" class="login-box hidden">
-                <h2>Registro de Administrador</h2>
+                <h2>Redistro de Administrador</h2>
                 <p>Crea tu cuenta rellenando el perfil oficial:</p>
                 <div class="input-group">
                     <label>Nombre Completo:</label>
@@ -108,12 +108,25 @@
                     </div>
                 </div>
 
+                <!-- SECCIÓN DEL PADRÓN MODIFICADA CON NOMBRE Y DUI -->
                 <div class="admin-box">
                     <h3>Padrón de Votantes Habilitados</h3>
-                    <div class="input-group-row" style="display: flex; gap: 5px; margin-bottom: 10px;">
-                        <input type="text" id="nuevo-dui" placeholder="00000000-0" maxlength="10" style="flex: 1;">
-                        <button type="button" id="btn-add-dui" class="btn-success" style="padding: 5px 15px;">+</button>
+                    
+                    <div class="config-group" style="margin-bottom: 10px;">
+                        <label style="font-size: 13px; font-weight: bold;">Nombre del Votante:</label>
+                        <input type="text" id="nuevo-nombre-votante" placeholder="Nombre Completo" style="width: 100%; box-sizing: border-box; margin-top: 4px;">
                     </div>
+
+                    <div class="config-group" style="margin-bottom: 12px;">
+                        <label style="font-size: 13px; font-weight: bold;">Número de DUI:</label>
+                        <input type="text" id="nuevo-dui" placeholder="00000000-0" maxlength="10" style="width: 100%; box-sizing: border-box; margin-top: 4px;">
+                    </div>
+
+                    <button type="button" id="btn-add-dui" class="btn-success" style="width: 100%; padding: 8px; margin-bottom: 15px; font-weight: bold; font-size: 16px;">
+                        + Agregar al Padrón
+                    </button>
+
+                    <hr style="border: 0; border-top: 1px solid #e5e7eb; margin-bottom: 15px;">
 
                     <div class="config-group" style="margin-bottom: 15px;">
                         <label for="archivo-duis" style="font-size: 13px; font-weight: bold;">Carga Masiva (.txt):</label>
@@ -132,7 +145,7 @@
                             <input type="text" id="nuevo-titulo" placeholder="Título de la propuesta o candidato" required style="width: 100%; box-sizing: border-box;">
                         </div>
                         <div class="input-group" style="margin-top: 10px;">
-                            <textarea id="nueva-descripcion" placeholder="Breve descripción de los objetivos o perfil..." rows="2" required style="width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+                            <textarea id="nueva-descripcion" placeholder="Breve descripción de los objetivos o perfil..." rows="2" required style="width: 100%; box-sizing: border-box; resize: vertical Papel;"></textarea>
                         </div>
                         <button type="submit" class="btn-success" style="margin-top: 10px;">Inscribir Participante</button>
                     </form>
@@ -147,6 +160,7 @@
 
     </main>
 
+    <!-- VENTANA FLOTANTE DEL PADRÓN -->
     <div id="modal-padron" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000;">
         <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 450px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">

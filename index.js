@@ -70,7 +70,7 @@ const adminRegErrorMsg = document.getElementById('admin-reg-error-msg');
 
 // Elementos Admin - Control de Padrón y Opciones
 const inputNuevoDui = document.getElementById('nuevo-dui');
-const btnAddDui = document.getElementById('btn-add-dui');
+const btnAddDui = document.getElementById("btn-add-dui");
 const inputArchivoDuis = document.getElementById('archivo-duis');
 const listaDuisPrevia = document.getElementById('lista-duis-previa');
 const inputTiempoDuracion = document.getElementById('tiempo-duracion');
@@ -446,12 +446,12 @@ function finalizarYCalcularResultados() {
 }
 
 // ==========================================
-// GESTIÓN INTERNA DEL ADMINISTRADOR (PADRÓN)
+// GESTIÓN INTERNA BLINDADA (EVITA ERRORES EN LA VISTA PÚBLICA)
 // ==========================================
 if (btnAddDui) {
     btnAddDui.addEventListener('click', () => {
+        if (!inputNuevoDui) return;
         const val = inputNuevoDui.value.trim();
-        // Al añadir manual también se exige formato con guión
         const formatoDuiValido = /^\d{8}-\d{1}$/;
         if (formatoDuiValido.test(val) && !estadoSistem.padronDuis.includes(val)) {
             estadoSistem.padronDuis.push(val);
@@ -472,7 +472,6 @@ if (inputArchivoDuis) {
             const lineas = evt.target.result.split(/\r?\n/);
             lineas.forEach(l => {
                 const d = l.trim();
-                // Acepta solo líneas con formato DUI estricto desde el bloc de notas
                 const formatoDuiValido = /^\d{8}-\d{1}$/;
                 if (formatoDuiValido.test(d) && !estadoSistem.padronDuis.includes(d)) {
                     estadoSistem.padronDuis.push(d);
@@ -522,7 +521,7 @@ if (btnFinalize) {
             alert("El padrón de DUIs no puede estar vacío.");
             return;
         }
-        const tMin = parseInt(inputTiempoDuracion.value) || 10;
+        const tMin = inputTiempoDuracion ? parseInt(inputTiempoDuracion.value) || 10 : 10;
         await setDoc(controlVotacionDocRef, {
             modoVotacion: selectTipoVotacion ? selectTipoVotacion.value : 'unico',
             haFinalizado: false,
